@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saturia.</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080808;--panel:#101010;--border:rgba(255,255,255,0.06);
+  --text:#f0ece4;--muted:rgba(240,236,228,0.4);
+  --spotify:#1DB954;--discord:#5865F2;--ig:#e6683c;--tiktok:#ff0050;--globe:#4A9EFF;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;cursor:none;overflow-x:hidden}
+
+/* ── CURSOR ── */
+.cur-dot,.cur-ring{position:fixed;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+.cur-dot{width:5px;height:5px;background:#fff}
+.cur-ring{width:28px;height:28px;border:1.5px solid rgba(255,255,255,.35);transition:width .25s,height .25s,border-color .25s}
+.cur-ring.big{width:50px;height:50px;border-color:rgba(255,255,255,.6)}
+
+/* ── PARTICLES ── */
+#particles{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5}
+
+/* ── LAYOUT ── */
+.page{min-height:100vh;display:flex;align-items:stretch;position:relative;z-index:1}
+
+/* ── LEFT PANEL ── */
+.left{
+  position:sticky;top:0;width:42%;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:52px 44px;background:var(--panel);border-right:1px solid var(--border);overflow:hidden;
+}
+.left-blob{
+  position:absolute;inset:0;pointer-events:none;overflow:hidden;
+}
+.blob1,.blob2{
+  position:absolute;border-radius:50%;filter:blur(70px);animation:blobMove 12s ease-in-out infinite alternate;
+}
+.blob1{width:320px;height:320px;top:-80px;left:-80px;background:rgba(88,101,242,.18);animation-delay:0s}
+.blob2{width:280px;height:280px;bottom:-60px;right:-60px;background:rgba(29,185,84,.14);animation-delay:-6s}
+@keyframes blobMove{0%{transform:translate(0,0) scale(1)}100%{transform:translate(30px,20px) scale(1.1)}}
+.grain{position:absolute;inset:0;opacity:.025;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+.left-inner{position:relative;z-index:1;text-align:center;display:flex;flex-direction:column;align-items:center}
+
+/* photo ring */
+.photo-wrap{width:136px;height:136px;border-radius:50%;position:relative;margin-bottom:22px;flex-shrink:0}
+.ring-outer{position:absolute;inset:-4px;border-radius:50%;
+  background:conic-gradient(var(--spotify) 0deg,#5865F2 120deg,#dc2743 240deg,var(--spotify) 360deg);
+  animation:spinRing 8s linear infinite}
+.ring-glow{position:absolute;inset:-9px;border-radius:50%;
+  background:conic-gradient(var(--spotify) 0deg,#5865F2 120deg,#dc2743 240deg,var(--spotify) 360deg);
+  animation:spinRing 8s linear infinite;opacity:.2;filter:blur(9px)}
+@keyframes spinRing{to{transform:rotate(360deg)}}
+.photo-inner{position:absolute;inset:4px;border-radius:50%;overflow:hidden;background:var(--bg);z-index:1}
+.photo-inner img{width:100%;height:100%;object-fit:cover;display:block}
+
+.name{font-family:'Playfair Display',serif;font-size:clamp(1.9rem,2.8vw,2.7rem);font-weight:700;line-height:1;letter-spacing:-.02em;margin-bottom:7px}
+.name em{font-style:italic;background:linear-gradient(90deg,var(--spotify),#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.bio{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:24px}
+
+/* ── NOW PLAYING ── */
+.now-playing{
+  width:100%;background:rgba(29,185,84,.07);
+  border:1px solid rgba(29,185,84,.18);border-radius:14px;
+  padding:13px 15px;display:flex;align-items:center;gap:11px;
+  margin-bottom:22px;position:relative;overflow:hidden;
+  transition:border-color .3s,box-shadow .3s;
+}
+.now-playing:hover{border-color:rgba(29,185,84,.45);box-shadow:0 0 20px rgba(29,185,84,.1)}
+.np-glow{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(29,185,84,.06),transparent)}
+.np-art{
+  width:42px;height:42px;border-radius:8px;flex-shrink:0;
+  background:#1a1a1a;overflow:hidden;position:relative;
+}
+.np-art img{width:100%;height:100%;object-fit:cover;border-radius:8px;display:none}
+.np-art.playing img{display:block;animation:vinylSpin 5s linear infinite}
+.np-art-placeholder{
+  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  color:rgba(29,185,84,.4);font-size:.9rem;
+}
+@keyframes vinylSpin{to{transform:rotate(360deg)}}
+.np-info{flex:1;min-width:0}
+.np-badge{display:flex;align-items:center;gap:5px;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--spotify);margin-bottom:3px;font-weight:500}
+.np-badge .dot{width:5px;height:5px;border-radius:50%;background:var(--spotify);animation:blink 1.6s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.np-track{font-size:.8rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np-artist{font-size:.7rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.waveform{display:flex;align-items:flex-end;gap:2px;height:20px;flex-shrink:0}
+.bar{width:3px;border-radius:2px;background:var(--spotify);animation:wave var(--d,.8s) ease-in-out infinite alternate;transform-origin:bottom}
+.bar:nth-child(1){--d:.55s;animation-delay:0s}
+.bar:nth-child(2){--d:.75s;animation-delay:.1s}
+.bar:nth-child(3){--d:.65s;animation-delay:.2s}
+.bar:nth-child(4){--d:.9s;animation-delay:.05s}
+.bar:nth-child(5){--d:.6s;animation-delay:.15s}
+@keyframes wave{from{height:3px}to{height:18px}}
+.waveform.paused .bar{animation-play-state:paused;height:3px}
+
+/* social */
+.social-row{display:flex;gap:9px;justify-content:center}
+.soc-btn{
+  width:34px;height:34px;border-radius:50%;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--muted);font-size:.75rem;text-decoration:none;
+  transition:all .25s;position:relative;overflow:hidden;
+}
+.soc-btn::before{content:'';position:absolute;inset:0;border-radius:50%;background:var(--hbg,rgba(255,255,255,.05));transform:scale(0);transition:transform .28s}
+.soc-btn:hover::before{transform:scale(1)}
+.soc-btn:hover{border-color:var(--hc,#fff);color:var(--hc,#fff)}
+.soc-btn[data-s="twitter"]{--hc:#1DA1F2;--hbg:rgba(29,161,242,.12)}
+.soc-btn[data-s="linkedin"]{--hc:#0A66C2;--hbg:rgba(10,102,194,.12)}
+.soc-btn[data-s="github"]{--hc:#fff;--hbg:rgba(255,255,255,.08)}
+
+/* ── RIGHT PANEL ── */
+.right{flex:1;display:flex;flex-direction:column;justify-content:center;padding:52px 50px;gap:10px}
+.sec-label{
+  font-size:.63rem;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(240,236,228,.22);display:flex;align-items:center;gap:8px;margin-bottom:2px;
+}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── LINK CARD ── */
+.link-card{
+  display:flex;align-items:center;gap:15px;padding:16px 19px;
+  border:1px solid var(--border);border-radius:14px;background:var(--panel);
+  cursor:none;text-decoration:none;color:var(--text);
+  position:relative;overflow:hidden;
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1),border-color .3s,box-shadow .3s;
+}
+.shimmer{position:absolute;top:0;left:-100%;width:55%;height:100%;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.04),transparent);
+  transition:left .55s ease}
+.link-card:hover .shimmer{left:150%}
+.link-card:hover{transform:translateX(7px) scale(1.015)}
+
+/* per-platform theming */
+.link-card[data-t="instagram"]{--pc:#e6683c;--glow:rgba(220,39,67,.15)}
+.link-card[data-t="spotify"]  {--pc:#1DB954;--glow:rgba(29,185,84,.15)}
+.link-card[data-t="tiktok"]   {--pc:#ff0050;--glow:rgba(255,0,80,.15)}
+.link-card[data-t="website"]  {--pc:#4A9EFF;--glow:rgba(74,158,255,.15)}
+.link-card[data-t="discord"]  {--pc:#5865F2;--glow:rgba(88,101,242,.15)}
+.link-card:hover{border-color:var(--pc);box-shadow:0 0 22px var(--glow)}
+
+.card-icon{
+  width:44px;height:44px;flex-shrink:0;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+  transition:transform .3s;position:relative;overflow:hidden;
+}
+.link-card:hover .card-icon{transform:scale(1.12) rotate(-5deg)}
+
+/* icon bg per platform */
+.link-card[data-t="instagram"] .card-icon{background:linear-gradient(45deg,rgba(240,148,51,.18),rgba(220,39,67,.18),rgba(188,24,136,.18));color:#e6683c}
+.link-card[data-t="spotify"]   .card-icon{background:rgba(29,185,84,.14);color:#1DB954}
+.link-card[data-t="tiktok"]    .card-icon{background:rgba(255,0,80,.12);color:#ff0050}
+.link-card[data-t="website"]   .card-icon{background:rgba(74,158,255,.14);color:#4A9EFF}
+.link-card[data-t="discord"]   .card-icon{background:rgba(88,101,242,.14);color:#5865F2}
+
+.card-txt{flex:1;min-width:0}
+.card-title{display:block;font-weight:500;font-size:.88rem;margin-bottom:2px}
+.card-sub{display:block;font-size:.73rem;color:var(--muted)}
+.card-arrow{font-size:.72rem;color:var(--muted);transition:color .3s,transform .3s}
+.link-card:hover .card-arrow{color:var(--pc);transform:translateX(5px)}
+
+/* ── DISCORD SERVER WIDGET ── */
+.dc-widget{
+  background:rgba(88,101,242,.07);border:1px solid rgba(88,101,242,.18);
+  border-radius:14px;padding:15px 19px;
+  display:flex;align-items:center;gap:14px;
+  position:relative;overflow:hidden;
+  transition:border-color .3s,box-shadow .3s;
+}
+.dc-widget:hover{border-color:rgba(88,101,242,.45);box-shadow:0 0 24px rgba(88,101,242,.12)}
+.dc-pulse-bg{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 80% at 50% 50%,rgba(88,101,242,.05),transparent);
+  animation:dcPulseAnim 4s ease-in-out infinite alternate}
+@keyframes dcPulseAnim{0%{opacity:.5}100%{opacity:1}}
+.dc-icon{
+  width:44px;height:44px;border-radius:11px;flex-shrink:0;
+  background:rgba(88,101,242,.2);border:1px solid rgba(88,101,242,.3);
+  display:flex;align-items:center;justify-content:center;font-size:1.15rem;color:#5865F2;
+  animation:dcIconGlow 3s ease-in-out infinite;
+}
+@keyframes dcIconGlow{0%,100%{box-shadow:0 0 0 0 rgba(88,101,242,.4)}50%{box-shadow:0 0 0 7px rgba(88,101,242,0)}}
+.dc-info{flex:1;min-width:0}
+.dc-name{font-size:.86rem;font-weight:500;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dc-stats{display:flex;gap:12px;flex-wrap:wrap}
+.dc-stat{font-size:.7rem;color:var(--muted);display:flex;align-items:center;gap:4px}
+.online-dot{width:7px;height:7px;border-radius:50%;background:#23a55a;flex-shrink:0;animation:blink 2s infinite}
+.offline-dot{width:7px;height:7px;border-radius:50%;background:#80848e;flex-shrink:0}
+.dc-join{
+  padding:8px 15px;border-radius:8px;background:#5865F2;color:#fff;
+  font-size:.76rem;font-weight:500;text-decoration:none;border:none;cursor:none;
+  flex-shrink:0;transition:background .25s,transform .2s,box-shadow .2s;
+  position:relative;overflow:hidden;
+}
+.dc-join::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.12);
+  transform:translateX(-100%) skewX(-15deg);transition:transform .3s}
+.dc-join:hover::after{transform:translateX(120%) skewX(-15deg)}
+.dc-join:hover{background:#4752c4;transform:scale(1.04);box-shadow:0 0 14px rgba(88,101,242,.4)}
+
+.footer{margin-top:8px;font-size:.63rem;color:rgba(240,236,228,.18);letter-spacing:.06em}
+
+/* ── ENTRY ANIMATIONS ── */
+.left-inner{opacity:0;animation:fadeUp .8s .1s ease forwards}
+.link-card,.dc-widget,.sec-label{opacity:0;animation:fadeUp .55s ease forwards}
+.sec-label:nth-of-type(1){animation-delay:.18s}
+.link-card:nth-child(1){animation-delay:.25s}
+.link-card:nth-child(2){animation-delay:.33s}
+.link-card:nth-child(3){animation-delay:.41s}
+.link-card:nth-child(4){animation-delay:.49s}
+.sec-label:nth-of-type(2){animation-delay:.54s}
+.dc-widget{animation-delay:.58s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .page{flex-direction:column}
+  .left{position:relative;width:100%;min-height:auto;padding:50px 20px 34px;border-right:none;border-bottom:1px solid var(--border)}
+  .right{padding:26px 16px 44px}
+  html,body{cursor:auto}
+  .cur-dot,.cur-ring{display:none}
+}
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+<div class="page">
+
+<!-- ══ LEFT ══ -->
+<aside class="left">
+  <div class="left-blob"><div class="blob1"></div><div class="blob2"></div></div>
+  <div class="grain"></div>
+  <div class="left-inner">
+
+    <div class="photo-wrap">
+      <div class="ring-glow"></div>
+      <div class="ring-outer"></div>
+      <div class="photo-inner">
+        <img src="https://i.scdn.co/image/ab6775700000ee85f4d7a59ff084e7f131737886" alt="Saturia">
+      </div>
+    </div>
+
+    <h1 class="name">Satu<em>ria.</em></h1>
+    <p class="bio">Creative Designer &amp; Developer</p>
+
+    <!-- Spotify Now Playing -->
+    <div class="now-playing" id="nowPlaying">
+      <div class="np-glow"></div>
+      <div class="np-art" id="npArt">
+        <div class="np-art-placeholder"><i class="fab fa-spotify"></i></div>
+        <img id="npImg" src="" alt="">
+      </div>
+      <div class="np-info">
+        <div class="np-badge"><span class="dot"></span><span id="npStatus">Connecting...</span></div>
+        <div class="np-track" id="npTrack">—</div>
+        <div class="np-artist" id="npArtist">—</div>
+      </div>
+      <div class="waveform paused" id="waveform">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div>
+      </div>
+    </div>
+
+    <!-- <div class="social-row">
+      <a href="#" class="soc-btn" data-s="twitter"><i class="fab fa-twitter"></i></a>
+      <a href="#" class="soc-btn" data-s="linkedin"><i class="fab fa-linkedin-in"></i></a>
+      <a href="#" class="soc-btn" data-s="github"><i class="fab fa-github"></i></a>
+    </div> -->
+
+  </div>
+</aside>
+
+<!-- ══ RIGHT ══ -->
+<main class="right">
+  <p class="sec-label">My Links</p>
+
+  <a class="link-card" data-t="instagram" href="https://instagram.com/krniwnstria" target="_blank" rel="noopener">
+    <div class="shimmer"></div>
+    <div class="card-icon"><i class="fab fa-instagram"></i></div>
+    <div class="card-txt"><span class="card-title">Instagram</span><span class="card-sub">@krniwnstria</span></div>
+    <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
+  </a>
+
+  <a class="link-card" data-t="spotify" href="https://open.spotify.com/user/31baawv2fhvznr3b6bpr4iuxjkaq" target="_blank" rel="noopener">
+    <div class="shimmer"></div>
+    <div class="card-icon"><i class="fab fa-spotify"></i></div>
+    <div class="card-txt"><span class="card-title">Spotify</span><span class="card-sub">Satzz.</span></div>
+    <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
+  </a>
+
+  <a class="link-card" data-t="tiktok" href="https://tiktok.com/@satzzdev" target="_blank" rel="noopener">
+    <div class="shimmer"></div>
+    <div class="card-icon"><i class="fab fa-tiktok"></i></div>
+    <div class="card-txt"><span class="card-title">TikTok</span><span class="card-sub">@satzzdev</span></div>
+    <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
+  </a>
+
+  <a class="link-card" data-t="website" href="https://satzz.online" target="_blank" rel="noopener">
+    <div class="shimmer"></div>
+    <div class="card-icon"><i class="fas fa-globe"></i></div>
+    <div class="card-txt"><span class="card-title">Portfolio</span><span class="card-sub">satzz.online</span></div>
+    <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
+  </a>
+
+  <p class="sec-label" style="margin-top:6px">Community</p>
+
+  <!-- Discord widget -->
+  <div class="dc-widget" id="dcWidget">
+    <div class="dc-pulse-bg"></div>
+    <div class="dc-icon"><i class="fab fa-discord"></i></div>
+    <div class="dc-info">
+      <div class="dc-name" id="dcName">Loading...</div>
+      <div class="dc-stats">
+        <span class="dc-stat"><span class="online-dot"></span><span id="dcOnline">—</span>&nbsp;online</span>
+        <span class="dc-stat"><span class="offline-dot"></span><span id="dcTotal">—</span>&nbsp;members</span>
+      </div>
+    </div>
+    <a class="dc-join" href="https://discord.gg/YOUR_INVITE" target="_blank" rel="noopener" id="dcJoinBtn">Join ↗</a>
+  </div>
+
+  <p class="footer">© 2026 Saturia. All rights reserved.</p>
+</main>
+</div>
+
+<div class="cur-ring" id="curRing"></div>
+<div class="cur-dot"  id="curDot"></div>
+
+<script>
+/* ── CURSOR ─────────────────────────────────────── */
+const ring=document.getElementById('curRing'),dot=document.getElementById('curDot');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+(function loop(){
+  dot.style.cssText=`left:${mx}px;top:${my}px`;
+  rx+=(mx-rx)*.13; ry+=(my-ry)*.13;
+  ring.style.cssText=`left:${rx}px;top:${ry}px`;
+  requestAnimationFrame(loop);
+})();
+document.querySelectorAll('a,.dc-join,.soc-btn').forEach(el=>{
+  el.addEventListener('mouseenter',()=>ring.classList.add('big'));
+  el.addEventListener('mouseleave',()=>ring.classList.remove('big'));
+});
+
+/* ── PARTICLES ──────────────────────────────────── */
+const cv=document.getElementById('particles'),c=cv.getContext('2d');
+let W,H,pts=[];
+function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight;init()}
+function init(){
+  pts=[];const n=Math.floor(W*H/20000);
+  for(let i=0;i<n;i++)pts.push({x:Math.random()*W,y:Math.random()*H,
+    vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,r:Math.random()*1.1+.3,a:Math.random()});
+}
+function draw(){
+  c.clearRect(0,0,W,H);
+  pts.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+    c.beginPath();c.arc(p.x,p.y,p.r,0,Math.PI*2);
+    c.fillStyle=`rgba(255,255,255,${p.a*.35})`;c.fill();
+  });
+  for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+    const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.hypot(dx,dy);
+    if(d<110){c.beginPath();c.moveTo(pts[i].x,pts[i].y);c.lineTo(pts[j].x,pts[j].y);
+      c.strokeStyle=`rgba(255,255,255,${(1-d/110)*.035})`;c.lineWidth=.5;c.stroke();}
+  }
+  requestAnimationFrame(draw);
+}
+window.addEventListener('resize',resize);resize();draw();
+
+/* ── SPOTIFY NOW PLAYING ─────────────────────────
+   Uses Lanyard API — set your Discord user ID below.
+   Lanyard reads your Discord status for Spotify activity.
+   Register at: https://lanyard.rest
+   ─────────────────────────────────────────────── */
+
+// Demo tracks shown when Lanyard ID not set
+const DEMO_TRACKS = [
+  {song:'Blinding Lights',artist:'The Weeknd',art:'https://i.scdn.co/image/ab67616d0000b273c5649add07ed3720be9d5526'},
+  {song:'good 4 u',artist:'Olivia Rodrigo',art:'https://i.scdn.co/image/ab67616d0000b2736b4e1c69b27ded1c6c2c88e1'},
+  {song:'As It Was',artist:'Harry Styles',art:'https://i.scdn.co/image/ab67616d0000b273b46f74097655d7f353caab14'},
+  {song:'Flowers',artist:'Miley Cyrus',art:'https://i.scdn.co/image/ab67616d0000b2736c49484ef4f8f01f72f7cc07'},
+];
+
+function setTrack(song,artist,artUrl,playing){
+  document.getElementById('npStatus').textContent = playing ? 'Now Playing' : 'Not Playing';
+  document.getElementById('npTrack').textContent  = song;
+  document.getElementById('npArtist').textContent = artist;
+  const img = document.getElementById('npImg');
+  const art = document.getElementById('npArt');
+  if(artUrl){ img.src=artUrl; art.classList.add('playing'); }
+  else { img.src=''; art.classList.remove('playing'); }
+  const wf = document.getElementById('waveform');
+  playing ? wf.classList.remove('paused') : wf.classList.add('paused');
+}
+
+async function fetchLanyard(){
+  try{
+    const r = await fetch(`https://api.lanyard.rest/v1/users/1051160138746171432`);
+    if(!r.ok) throw new Error();
+    const d = await r.json();
+    if(d.success && d.data.spotify){
+      const sp = d.data.spotify;
+      setTrack(sp.song, sp.artist, sp.album_art_url, true);
+    } else {
+      setTrack('Nothing playing','—',null,false);
+    }
+  } catch(e){ runDemo(); }
+}
+
+let demoIdx=0,demoTimer=null;
+function runDemo(){
+  function set(){setTrack(DEMO_TRACKS[demoIdx].song,DEMO_TRACKS[demoIdx].artist,DEMO_TRACKS[demoIdx].art,true)}
+  set();
+  if(!demoTimer) demoTimer=setInterval(()=>{demoIdx=(demoIdx+1)%DEMO_TRACKS.length;set();},11000);
+}
+
+fetchLanyard(); 
+setInterval(fetchLanyard,30000); 
+
+/* ── DISCORD WIDGET ──────────────────────────────
+   Requires Widget enabled on your server:
+   Server Settings → Widget → Enable Server Widget
+   then paste your Guild/Server ID below.
+   ─────────────────────────────────────────────── */
+const DC_GUILD_ID  = null;  // ← your Discord server ID
+const DC_INVITE    = 'https://discord.gg/bASupnPz'; // ← your invite link
+
+async function fetchDiscord(){
+  if(!DC_GUILD_ID){ showDcDemo(); return; }
+  try{
+    const r=await fetch(`https://discord.com/api/v9/guilds/${DC_GUILD_ID}/widget.json`);
+    if(!r.ok) throw new Error();
+    const d=await r.json();
+    document.getElementById('dcName').textContent   = d.name||'Discord Server';
+    document.getElementById('dcOnline').textContent = d.presence_count??'—';
+    if(d.instant_invite) document.getElementById('dcJoinBtn').href = d.instant_invite;
+    else document.getElementById('dcJoinBtn').href = DC_INVITE;
+  } catch(e){ showDcDemo(); }
+}
+function showDcDemo(){
+  document.getElementById('dcName').textContent   = 'Kindered Circle';
+  document.getElementById('dcOnline').textContent = '5';
+  document.getElementById('dcTotal').textContent  = '34';
+  document.getElementById('dcJoinBtn').href       = DC_INVITE;
+}
+fetchDiscord();
+
+/* ── CARD TILT ───────────────────────────────────── */
+document.querySelectorAll('.link-card').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const b=card.getBoundingClientRect();
+    const x=e.clientX-b.left,y=e.clientY-b.top;
+    const rx=((y-b.height/2)/b.height)*5,ry=-((x-b.width/2)/b.width)*5;
+    card.style.transform=`translateX(7px) scale(1.015) perspective(700px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+  });
+  card.addEventListener('mouseleave',()=>card.style.transform='');
+});
+</script>
+</body>
+</html>
