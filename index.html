@@ -430,12 +430,10 @@ setInterval(fetchLanyard,1000);
    Server Settings → Widget → Enable Server Widget
    then paste your Guild/Server ID below.
    ─────────────────────────────────────────────── */
-const DC_GUILD_ID  = 1420854984865611830;  // ← your Discord server ID
 const DC_INVITE    = 'https://discord.gg/bASupnPz'; // ← your invite link
 async function fetchDiscord(){
-  if(!DC_GUILD_ID){ showDcDemo(); return; }
   try{
-    const r=await fetch(`https://discord.com/api/guilds/${DC_GUILD_ID}/widget.json`);
+    const r=await fetch(`https://discord.com/api/guilds/1420854984865611830/widget.json`);
     if(!r.ok) throw new Error();
     const d=await r.json();
     document.getElementById('dcName').textContent   = d.name||'Discord Server';
